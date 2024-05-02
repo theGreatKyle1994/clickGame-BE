@@ -1,4 +1,6 @@
 const Account = require("../models/account.model");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 module.exports = {
   getAll: async (req, res) => {
@@ -6,12 +8,26 @@ module.exports = {
     res.json(accounts);
   },
   create: async (req, res) => {
-    await Account.create(req.body)
-      .then((data) => {
-        return res.json(data);
-      })
-      .catch(() => {
-        return res.sendStatus(400);
+    const accountInfo = req.body;
+    const potentialAccount = await Account.findOne({
+      email: accountInfo.email,
+    });
+
+    if (potentialAccount)
+      return res.json({
+        messages: {
+          errors: {
+            email: {
+              message: "This email already exists.",
+            },
+          },
+        },
       });
+
+    await bcrypt
+      .hash(req.body.password, 10)
+      .then((hash) => (accountInfo.password = hash));
+
+    await Account.create(accountInfo).then((data) => res.json(data));
   },
 };
