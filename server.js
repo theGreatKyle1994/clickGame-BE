@@ -6,8 +6,6 @@ const PORT = process.env.PORT;
 
 app.use(express.urlencoded({ extended: true }), express.json());
 
-app.use((req, res) => {
-  res.json({ message: "Success!" });
-});
+require("./routes/player.routes")(app);
 
 app.listen(PORT, () => console.log(`Server live on port: ${PORT}`));
