@@ -55,6 +55,7 @@ AccountSchema.pre("save", function (next) {
 });
 
 AccountSchema.post("findOne", async function (result, next) {
+  console.log(this.getFilter(), result);
   if (!result) {
     const newErr = new mongoose.Error.ValidationError(this);
     newErr.addError(

@@ -9,7 +9,7 @@ module.exports = {
       .catch((err) => res.json(err)),
   login: async (req, res, next) =>
     await Account.findOne({
-      username: req.body.username,
+      $or: [{ username: req.body.username }, { password: req.body.password }],
     })
       .then((user) => res.json(user))
       .catch((err) => res.json(err)),
