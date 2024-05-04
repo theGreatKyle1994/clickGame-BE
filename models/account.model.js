@@ -50,6 +50,17 @@ AccountSchema.pre("validate", async function (next) {
   next();
 });
 
+// Validate username is unique
+AccountSchema.pre("validate", async function (next) {
+  const takenAccount = await Account.find({
+    username: this.username,
+  });
+  if (takenAccount[0]) {
+    this.invalidate("username", "Username already taken.");
+  }
+  next();
+});
+
 // Hash password on account creation
 AccountSchema.pre("save", function (next) {
   bcrypt.hash(this.password, 10).then((hash) => {
