@@ -7,6 +7,7 @@ const AccountSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username is required."],
       minLength: [8, "Username must be at least 8 characters."],
+      unique: true,
       trim: true,
     },
     email: {
@@ -37,10 +38,10 @@ AccountSchema.pre("validate", function (next) {
 });
 
 AccountSchema.pre("validate", async function (next) {
-  const takenAccount = await Account.findOne({
+  const takenAccount = await Account.find({
     email: this.email,
   });
-  if (takenAccount) {
+  if (takenAccount[0]) {
     this.invalidate("email", "Email already taken.");
   }
   next();
@@ -51,6 +52,18 @@ AccountSchema.pre("save", function (next) {
     this.password = hash;
     next();
   });
+});
+
+AccountSchema.post("findOne", async function (result, next) {
+  if (!result) {
+    const newErr = new mongoose.Error.ValidationError(this);
+    newErr.addError(
+      "username",
+      new mongoose.Error.ValidatorError({ message: "Username not found." })
+    );
+    next(newErr);
+  }
+  next();
 });
 
 const Account = mongoose.model("Account", AccountSchema);
