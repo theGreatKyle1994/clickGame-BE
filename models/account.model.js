@@ -36,7 +36,7 @@ AccountSchema.pre("validate", function (next) {
   if (this.password !== this.cPassword) {
     this.invalidate("cPassword", "Passwords don't match");
   }
-  next();
+  return next();
 });
 
 // Validate email is unique
@@ -47,7 +47,7 @@ AccountSchema.pre("validate", async function (next) {
   if (takenAccount[0]) {
     this.invalidate("email", "Email already taken.");
   }
-  next();
+  return next();
 });
 
 // Validate username is unique
@@ -58,14 +58,14 @@ AccountSchema.pre("validate", async function (next) {
   if (takenAccount[0]) {
     this.invalidate("username", "Username already taken.");
   }
-  next();
+  return next();
 });
 
 // Hash password on account creation
 AccountSchema.pre("save", function (next) {
   bcrypt.hash(this.password, 10).then((hash) => {
     this.password = hash;
-    next();
+    return next();
   });
 });
 
